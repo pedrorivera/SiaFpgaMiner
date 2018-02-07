@@ -9,19 +9,19 @@ library work;
 entity MixG_tb is end MixG_tb;
 
 architecture test of MixG_tb is
-  
+
   constant kMixerNum : natural := 4;
 
   constant kTestV : U64Array_t(0 to 15) := (
-    x"6A09E667F2BDC948", x"BB67AE8584CAA73B", x"3C6EF372FE94F82B", x"A54FF53A5F1D36F1", 
+    x"6A09E667F2BDC948", x"BB67AE8584CAA73B", x"3C6EF372FE94F82B", x"A54FF53A5F1D36F1",
     x"510E527FADE682D1", x"9B05688C2B3E6C1F", x"1F83D9ABFB41BD6B", x"5BE0CD19137E2179",
     x"6A09E667F3BCC908", x"BB67AE8584CAA73B", x"3C6EF372FE94F82B", x"A54FF53A5F1D36F1",
     x"510E527FADE682D2", x"9B05688C2B3E6C1F", x"E07C265404BE4294", x"5BE0CD19137E2179"
   );
 
   constant kExpectedV : U64Array_t(0 to 15) := (
-    x"86B7C1568029BB79", x"C12CBCC809FF59F3", x"C6A5214CC0EACA8E", x"0C87CD524C14CC5D", 
-    x"44EE6039BD86A9F7", x"A447C850AA694A7E", x"DE080F1BB1C0F84B", x"595CB8A9A1ACA66C", 
+    x"86B7C1568029BB79", x"C12CBCC809FF59F3", x"C6A5214CC0EACA8E", x"0C87CD524C14CC5D",
+    x"44EE6039BD86A9F7", x"A447C850AA694A7E", x"DE080F1BB1C0F84B", x"595CB8A9A1ACA66C",
     x"BEC3AE837EAC4887", x"6267FC79DF9D6AD1", x"FA87B01273FA6DBE", x"521A715C63E08D8A",
     x"E02D0975B8D37A83", x"1C7B754F08B7D193", x"8F885A76B6E578FE", x"2318A24E2140FC64"
   );
@@ -30,11 +30,12 @@ architecture test of MixG_tb is
     x"0000000000636261", x"0000000000000000", x"0000000000000000", x"0000000000000000",
     x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000",
     x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000",
-    x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000" 
+    x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000"
   );
 
   signal aReset: std_logic;
   signal Clk: std_logic;
+  signal Start: boolean;
   signal A_in, B_in, C_in, D_in, X, Y : U64Array_t(0 to kMixerNum-1);
   signal A_out, B_out, C_out, D_out     : U64Array_t(0 to kMixerNum-1);
 
@@ -51,7 +52,7 @@ begin
   Clk <= not Clk after 10 ns when aReset = '0' else '0';
 
   MixerGen: for i in 0 to kMixerNum-1 generate
-    MixerDUT: entity work.MixG_FlopPipe4
+    MixerDUT: entity work.MixG_FlopPipe_4
     port map(
       Clk   => Clk,
       A_in  => A_in(i),
@@ -74,9 +75,9 @@ begin
     aReset <= '1'; wait for 10 ns; aReset <= '0';
 
     A_in(0) <= kTestV(0); -- V0
-    A_in(1) <= kTestV(1); -- V1 
-    A_in(2) <= kTestV(2); -- V2  
-    A_in(3) <= kTestV(3); -- V3 
+    A_in(1) <= kTestV(1); -- V1
+    A_in(2) <= kTestV(2); -- V2
+    A_in(3) <= kTestV(3); -- V3
 
     B_in(0) <= kTestV(4); -- V4
     B_in(1) <= kTestV(5); -- V5
@@ -92,7 +93,7 @@ begin
     D_in(1) <= kTestV(13); -- V13
     D_in(2) <= kTestV(14); -- V14
     D_in(3) <= kTestV(15); -- V15
-    
+
     -- Mesage feed, round = 0
     X(0) <= kTestMsg(kSigma(0, 0));
     Y(0) <= kTestMsg(kSigma(0, 1));
@@ -107,13 +108,13 @@ begin
 
     -- Feed back the first mix result
     A_in(0) <= A_out(0); -- V0
-    A_in(1) <= A_out(1); -- V1 
-    A_in(2) <= A_out(2); -- V2  
-    A_in(3) <= A_out(3); -- V3 
+    A_in(1) <= A_out(1); -- V1
+    A_in(2) <= A_out(2); -- V2
+    A_in(3) <= A_out(3); -- V3
 
     B_in(0) <= B_out(1); -- V5
     B_in(1) <= B_out(2); -- V6
-    B_in(2) <= B_out(3); -- V7  
+    B_in(2) <= B_out(3); -- V7
     B_in(3) <= B_out(0); -- V4
 
     C_in(0) <= C_out(2); -- V10
@@ -137,7 +138,7 @@ begin
     Y(3) <= kTestMsg(kSigma(0, 15));
 
     Start <= true; WaitClk; Start <= false;
-    wait until Valid = x"F";
+    --wait until Valid = x"F";
     WaitClk;
 
     --- VERIFICATION --------
