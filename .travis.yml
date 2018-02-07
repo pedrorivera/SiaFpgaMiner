@@ -1,0 +1,17 @@
+sudo: required
+
+language: python
+  - "3.6"
+
+services:
+  - docker
+
+script:
+  - docker pull ghdl/ext:vunit
+  - docker run -dt --name=vunit_docker ghdl/ext:vunit bash
+  - docker exec vunit_docker mkdir siaMiner
+  - docker exec vunit_docker bash -c 'curl -L https://github.com/pedrorivera/SiaFpgaMiner/archive/master.tar.gz | tar xz -C siaMiner'
+  - docker exec vunit_docker python3 ./siaMiner/SiaFpgaMiner-master/Tools/run_vunit.py
+  - docker stop vunit_docker
+  - docker rm vunit_docker
+
