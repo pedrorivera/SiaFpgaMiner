@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pedrorivera/SiaFpgaMiner.svg?branch=master)](https://travis-ci.org/pedrorivera/SiaFpgaMiner)
+
 # SiaFpgaMiner #
 
 This project is a VHDL FPGA core that implements an optimized Blake2b pipeline to mine Siacoin. 
