@@ -6,8 +6,12 @@ library ieee;
 library work;
   use work.PkgBlake2b.all;
   use work.PkgTestVectors.all;
+library vunit_lib;
+  context vunit_lib.vunit_context;
 
-entity SiaMinerPiped_tb is end SiaMinerPiped_tb;
+entity SiaMinerPiped_tb is
+  generic (runner_cfg : string);
+end SiaMinerPiped_tb;
 
 architecture test of SiaMinerPiped_tb is
 
@@ -26,9 +30,9 @@ architecture test of SiaMinerPiped_tb is
   end procedure WaitClk;
 
 begin
-  
+
   Clk <= not Clk after 5 ns when StopSim = '0' else '0'; --100 MHz clock
-  
+
   DUT: entity work.Blake2bMinerCore
   generic map(
     kNonceSeed => kTestNonce(47 downto 0)) -- Start at the known Nonce to cause Success assertion.
@@ -42,10 +46,11 @@ begin
 
   Main: process
   begin
+    test_runner_setup(runner, runner_cfg);
     StopSim <= '0';
 
     -- Disable the nonce generation (loads nonce seeds)
-    Enable <= '0';  
+    Enable <= '0';
     WaitClk;
     Enable <= '1';
 
@@ -54,6 +59,7 @@ begin
 
     report "Success!";
     StopSim <= '1';
+    test_runner_cleanup(runner); -- Simulation ends here
     wait;
   end process;
 
